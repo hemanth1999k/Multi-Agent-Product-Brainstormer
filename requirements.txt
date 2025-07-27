@@ -1,0 +1,3 @@
+langroid==0.0.12
+openai
+python-dotenv
