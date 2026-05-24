@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-ink text-neutral-200 antialiased;
+  /* Ambient cinematic gradient field */
+  background-image:
+    radial-gradient(60rem 60rem at 15% -10%, rgba(110, 168, 254, 0.12), transparent 60%),
+    radial-gradient(50rem 50rem at 110% 10%, rgba(240, 168, 104, 0.08), transparent 55%),
+    radial-gradient(40rem 40rem at 50% 120%, rgba(127, 209, 185, 0.07), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Soft glassmorphism panel */
+.glass-panel {
+  @apply rounded-2xl border border-hairline bg-glass backdrop-blur-xl shadow-cinematic;
+}
+
+/* Thin custom scrollbars for the streaming panes */
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+}
+
+/* Lightweight markdown rendering for streamed agent output */
+.md-stream h2 {
+  @apply mt-5 mb-2 text-sm font-semibold uppercase tracking-wider text-glow;
+}
+.md-stream p {
+  @apply my-2 leading-relaxed text-neutral-300;
+}
+.md-stream li {
+  @apply ml-5 list-disc text-neutral-300;
+}
+.md-stream strong {
+  @apply text-neutral-100;
+}
