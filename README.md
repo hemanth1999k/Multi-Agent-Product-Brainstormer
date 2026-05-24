@@ -1,111 +1,75 @@
-# 🤖 Multi-Agent Product Brainstormer
+# 🪡 Stitch
 
-A multi-agent LLM system that simulates a cross-functional product team (PM, Designer, Engineer, Analyst) to brainstorm product ideas and generate structured MVP specifications.
+**An AI-native product operating system.** Drop in a product idea and watch an autonomous
+product team think it through — live. v2 is a ground-up rebuild (Next.js + Claude) of the
+original Python prototype, which now lives in [`legacy/`](./legacy).
 
----
-
-## 🧠 What It Does
-
-Given a product idea (e.g., "AI-powered resume reviewer"), the system does the following:
-
-- **PM Agent** defines goals, constraints, user personas, and MVP scope.
-- **Designer Agent** outlines UX flow and key wireframe components.
-- **Engineer Agent** proposes architecture and tech stack.
-- **Analyst Agent** identifies KPIs, success metrics, and experimentation strategies.
-- **Output** is a clean markdown-based MVP spec, including a Mermaid diagram.
+> **Status:** first vertical slice — **Research Agent → PRD Agent**, streaming end-to-end with
+> live reasoning. Designer + Engineering agents are the next handoffs to add (the pattern is
+> built to extend).
 
 ---
 
-## 🧩 Architecture
+## What it does today
 
-```mermaid
-graph TD
-    A[User Input<br>Product Idea] --> B[PM Agent<br>Define Goals & Constraints]
-    B --> C[Designer Agent<br>Sketch UX & Wireframe Ideas]
-    B --> D[Engineer Agent<br>Propose Architecture & Tech Stack]
-    B --> E[Analyst Agent<br>Recommend KPIs & Success Metrics]
-    C --> F[Conversation Logger]
-    D --> F
-    E --> F
-    F --> G[Final Output Generator<br>Markdown + Mermaid Spec]
-    G --> H[Web Viewer<br>Live Conversation & Spec Download]
-```
+You enter a product idea. Then, streaming live:
+
+1. **Research Agent** synthesizes the opportunity (problem, JTBD, assumptions, why-now).
+2. **PRD Agent** reads that research and writes a focused MVP PRD.
+
+Both agents stream their **reasoning** *and* their output, so you watch the work happen. The
+research brief is passed to the PRD agent through a **prompt-cached** context block — so as more
+agents are added (Designer, Engineering), each one reads that shared context at ~1/10th the cost.
 
 ---
 
-## 🛠️ Tech Stack
+## Setup
 
-- Python + Langroid
-- React (planned for frontend)
-- OpenAI GPT-4 API
-- Mermaid.js
-- Markdown spec output
-- Optional: WebSockets for real-time interaction
-
----
-
-## 🚀 How to Run
-
-### 1. Backend Setup
+> ⚠️ **Free up disk first.** A Next.js `node_modules` is ~400–600 MB. Make sure you have a few GB
+> free before installing.
 
 ```bash
-cd backend
-pip install -r ../requirements.txt
-python main.py
+# 1. Install dependencies
+npm install
+
+# 2. Add your Anthropic API key (NOT your Claude.ai subscription — a separate thing)
+cp .env.local.example .env.local
+#    then edit .env.local and paste a key from https://console.anthropic.com
+#    (Billing → add a few $ of credit → API Keys → Create Key)
+
+# 3. Run
+npm run dev      # → http://localhost:3000
 ```
 
-### 2. Example Prompt
-
-```bash
-AI-powered resume reviewer for job seekers that gives feedback in real time
-```
-
-### 3. Output
-
-Generates: `/outputs/brainstorm_output.md`
+Useful checks: `npm run typecheck`, `npm run lint`.
 
 ---
 
-## 📂 Project Structure
+## Architecture
 
 ```
-multi_agent_product_brainstormer/
-├── backend/
-│   ├── main.py
-│   ├── agents/
-│   │   ├── pm_agent.py
-│   │   ├── designer_agent.py
-│   │   ├── engineer_agent.py
-│   │   └── analyst_agent.py
-├── outputs/
-├── diagrams/
-│   └── architecture.md
-├── prompts/
-│   └── base_prompts.txt
-├── requirements.txt
-└── README.md
+app/
+  page.tsx                     # landing + workspace shell
+  layout.tsx, globals.css      # cinematic dark design language
+  api/brainstorm/route.ts      # streams Research → PRD as NDJSON
+components/
+  Workspace.tsx                # client: idea input + live streaming panels
+lib/
+  agents.ts                    # model config + agent system prompts + cache setup
+legacy/                        # the original Python/Langroid prototype (archived)
 ```
 
----
+**Stack:** Next.js (App Router) · TypeScript · Tailwind · Framer Motion · the Anthropic SDK
+(`@anthropic-ai/sdk`) with streaming, adaptive thinking, and prompt caching.
 
-## 📋 Sample Prompts
-
-- "AI travel planner that gives real-time itinerary suggestions"
-- "Smart grocery list builder that syncs with family"
-- "Remote job matcher for tech freelancers"
-- "Language learning app that adapts to user mood"
+**Model:** [`lib/agents.ts`](./lib/agents.ts) exports `MODEL` (default `claude-opus-4-7`). To trade
+some quality for lower cost/latency during development, switch it to `claude-sonnet-4-6`.
 
 ---
 
-## 📈 Future Improvements
+## Roadmap
 
-- Add web-based UI for real-time brainstorming
-- Extend to allow agent memory and refinement loops
-- Embed LLM calls with LangGraph or AutoGen
-- Export to HTML/PDF
-
----
-
-## 📄 License
-
-MIT
+- [ ] **Designer Agent** — UX flow + component plan, reading the cached research/PRD context.
+- [ ] **Engineering Agent** — architecture + implementation handoff.
+- [ ] Persist runs (Supabase) and add the spatial canvas (React Flow) from the design concept.
+- [ ] Connect inputs (Slack / Jira / Notion) and a Stitch design import.
